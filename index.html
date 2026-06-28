@@ -1,0 +1,1068 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#111827" />
+  <meta name="description" content="Etsy satış, kâr, offsite ads, hedef fiyat ve indirim hesaplayıcı." />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+  <title>Etsy Fiyat & Kâr Hesaplayıcı</title>
+  <style>
+    :root {
+      --bg: #f5f6fa;
+      --surface: #ffffff;
+      --surface-2: #f3f4f6;
+      --text: #111827;
+      --muted: #6b7280;
+      --border: #e5e7eb;
+      --accent: #111827;
+      --accent-2: #374151;
+      --green: #047857;
+      --red: #b91c1c;
+      --orange-bg: #fff7ed;
+      --orange-border: #fed7aa;
+      --orange-text: #7c2d12;
+      --blue-bg: #eff6ff;
+      --blue-border: #bfdbfe;
+      --blue-text: #1e3a8a;
+      --shadow: 0 14px 35px rgba(15, 23, 42, 0.08);
+      --radius: 22px;
+    }
+
+    [data-theme="dark"] {
+      --bg: #0b1120;
+      --surface: #111827;
+      --surface-2: #1f2937;
+      --text: #f9fafb;
+      --muted: #9ca3af;
+      --border: #374151;
+      --accent: #f9fafb;
+      --accent-2: #d1d5db;
+      --green: #34d399;
+      --red: #f87171;
+      --orange-bg: #431407;
+      --orange-border: #9a3412;
+      --orange-text: #fed7aa;
+      --blue-bg: #172554;
+      --blue-border: #1d4ed8;
+      --blue-text: #dbeafe;
+      --shadow: 0 14px 35px rgba(0, 0, 0, 0.25);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.45;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .app {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 18px 14px 82px;
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      margin: -18px -14px 14px;
+      padding: 16px 14px 12px;
+      background: color-mix(in srgb, var(--bg) 88%, transparent);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .brand-left {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      min-width: 0;
+    }
+
+    .logo {
+      width: 42px;
+      height: 42px;
+      border-radius: 14px;
+      background: var(--accent);
+      color: var(--bg);
+      display: grid;
+      place-items: center;
+      font-weight: 900;
+      letter-spacing: -0.05em;
+      flex: 0 0 auto;
+    }
+
+    .brand h1 {
+      margin: 0;
+      font-size: 18px;
+      line-height: 1.1;
+      letter-spacing: -0.03em;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .brand p {
+      margin: 3px 0 0;
+      font-size: 12px;
+      color: var(--muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .icon-btn {
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      border-radius: 13px;
+      padding: 10px 12px;
+      font-size: 14px;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(15, 23, 42, 0.05);
+    }
+
+    .tabs {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding: 6px 0 2px;
+      scrollbar-width: none;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .tabs::-webkit-scrollbar { display: none; }
+
+    .tab-btn {
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      padding: 11px 13px;
+      border-radius: 999px;
+      white-space: nowrap;
+      font-weight: 700;
+      cursor: pointer;
+      font-size: 13px;
+    }
+
+    .tab-btn.active {
+      background: var(--accent);
+      color: var(--bg);
+      border-color: var(--accent);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1.05fr 0.95fr;
+      gap: 16px;
+      align-items: start;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px;
+      box-shadow: var(--shadow);
+    }
+
+    .card + .card { margin-top: 16px; }
+
+    .card h2 {
+      margin: 0 0 14px;
+      font-size: 19px;
+      letter-spacing: -0.02em;
+    }
+
+    .card h3 {
+      margin: 14px 0 10px;
+      font-size: 15px;
+      color: var(--muted);
+    }
+
+    .field-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .field {
+      margin-bottom: 12px;
+    }
+
+    label {
+      display: block;
+      font-size: 13px;
+      font-weight: 800;
+      margin-bottom: 6px;
+    }
+
+    input, select {
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: var(--surface);
+      color: var(--text);
+      padding: 13px 13px;
+      font-size: 16px;
+      outline: none;
+    }
+
+    input:focus, select:focus {
+      border-color: var(--accent-2);
+      box-shadow: 0 0 0 3px rgba(156, 163, 175, 0.22);
+    }
+
+    .hint {
+      color: var(--muted);
+      font-size: 11px;
+      margin-top: 5px;
+    }
+
+    .check-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      background: var(--surface-2);
+      border-radius: 16px;
+      padding: 13px;
+      margin-bottom: 12px;
+    }
+
+    .check-row label {
+      margin: 0;
+      font-size: 14px;
+    }
+
+    input[type="checkbox"] {
+      width: 22px;
+      height: 22px;
+      accent-color: var(--accent);
+      flex: 0 0 auto;
+    }
+
+    .result-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .result-box {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 14px;
+      min-height: 86px;
+    }
+
+    .result-title {
+      color: var(--muted);
+      font-size: 12px;
+      margin-bottom: 6px;
+      font-weight: 700;
+    }
+
+    .result-value {
+      font-size: 26px;
+      font-weight: 900;
+      letter-spacing: -0.04em;
+      word-break: break-word;
+    }
+
+    .small-value {
+      font-size: 19px;
+      font-weight: 900;
+      letter-spacing: -0.03em;
+    }
+
+    .good { color: var(--green); }
+    .bad { color: var(--red); }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+
+    td, th {
+      border-bottom: 1px solid var(--border);
+      padding: 11px 0;
+      text-align: left;
+    }
+
+    th {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    td:last-child, th:last-child {
+      text-align: right;
+      font-weight: 800;
+    }
+
+    tr:last-child td { border-bottom: none; }
+
+    .strong-row td {
+      font-weight: 900;
+      font-size: 15px;
+      padding-top: 14px;
+    }
+
+    .pill-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .pill {
+      border: 1px solid var(--border);
+      background: var(--surface-2);
+      border-radius: 999px;
+      padding: 9px 11px;
+      font-size: 12px;
+      font-weight: 800;
+      color: var(--text);
+    }
+
+    .notice {
+      padding: 13px;
+      border-radius: 16px;
+      font-size: 13px;
+      margin-top: 13px;
+    }
+
+    .notice.orange {
+      background: var(--orange-bg);
+      border: 1px solid var(--orange-border);
+      color: var(--orange-text);
+    }
+
+    .notice.blue {
+      background: var(--blue-bg);
+      border: 1px solid var(--blue-border);
+      color: var(--blue-text);
+    }
+
+    .btn-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 12px;
+    }
+
+    .btn {
+      border: none;
+      background: var(--accent);
+      color: var(--bg);
+      border-radius: 14px;
+      padding: 12px 14px;
+      font-weight: 900;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .btn.secondary {
+      background: var(--surface-2);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    .install-card {
+      display: none;
+    }
+
+    .install-card.show {
+      display: block;
+    }
+
+    .footer-note {
+      margin-top: 14px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .wide { grid-column: 1 / -1; }
+
+    @media (max-width: 820px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+      .field-grid, .result-grid {
+        grid-template-columns: 1fr;
+      }
+      .brand h1 { font-size: 16px; }
+      .brand p { max-width: 210px; }
+      .card { padding: 16px; }
+      .result-value { font-size: 24px; }
+    }
+
+    @media (display-mode: standalone) {
+      .topbar {
+        padding-top: calc(16px + env(safe-area-inset-top));
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="topbar">
+    <div class="brand">
+      <div class="brand-left">
+        <div class="logo">E</div>
+        <div>
+          <h1>Etsy Fiyat & Kâr Hesaplayıcı</h1>
+          <p>Offline çalışan özel mini uygulama</p>
+        </div>
+      </div>
+      <button class="icon-btn" id="themeBtn" type="button">🌙</button>
+    </div>
+    <div class="tabs" role="tablist">
+      <button class="tab-btn active" data-tab="profit">Kâr</button>
+      <button class="tab-btn" data-tab="target">Hedef Fiyat</button>
+      <button class="tab-btn" data-tab="discount">İndirim</button>
+      <button class="tab-btn" data-tab="settings">Ayarlar</button>
+    </div>
+  </div>
+
+  <main class="app">
+    <section class="card install-card" id="installCard">
+      <h2>Uygulama olarak kur</h2>
+      <p class="hint">Bu hesaplayıcıyı ana ekrana uygulama gibi ekleyebilirsin. Kurulum butonu tarayıcın desteklediğinde görünür.</p>
+      <div class="btn-row">
+        <button class="btn" id="installBtn" type="button">Ana ekrana kur</button>
+        <button class="btn secondary" id="dismissInstallBtn" type="button">Gizle</button>
+      </div>
+    </section>
+
+    <section class="tab-panel active" id="tab-profit">
+      <div class="grid">
+        <div>
+          <div class="card">
+            <h2>Kâr Hesapla</h2>
+            <div class="field-grid">
+              <div class="field">
+                <label for="salePrice">Satış fiyatı ($)</label>
+                <input id="salePrice" type="number" inputmode="decimal" min="0" step="0.01" value="179" />
+              </div>
+              <div class="field">
+                <label for="productCost">Ürün maliyeti ($)</label>
+                <input id="productCost" type="number" inputmode="decimal" min="0" step="0.01" value="30" />
+              </div>
+              <div class="field">
+                <label for="shippingCost">Kargo maliyeti ($)</label>
+                <input id="shippingCost" type="number" inputmode="decimal" min="0" step="0.01" value="45" />
+              </div>
+              <div class="field">
+                <label for="packagingCost">Paketleme maliyeti ($)</label>
+                <input id="packagingCost" type="number" inputmode="decimal" min="0" step="0.01" value="0" />
+              </div>
+              <div class="field">
+                <label for="otherCost">Diğer gider ($)</label>
+                <input id="otherCost" type="number" inputmode="decimal" min="0" step="0.01" value="0" />
+              </div>
+              <div class="field">
+                <label for="etsyAdsCost">Etsy Ads harcaması ($)</label>
+                <input id="etsyAdsCost" type="number" inputmode="decimal" min="0" step="0.01" value="0" />
+              </div>
+            </div>
+
+            <div class="field-grid">
+              <div class="field">
+                <label for="baseFeeRate">Normal Etsy kesintisi (%)</label>
+                <input id="baseFeeRate" type="number" inputmode="decimal" min="0" max="100" step="0.01" value="18" />
+                <div class="hint">%18: kur dönüşümlü pratik ana kesinti. KDV/VAT dahil senaryoda %21 kullanabilirsin.</div>
+              </div>
+              <div class="field">
+                <label for="offsiteRate">Offsite Ads oranı (%)</label>
+                <select id="offsiteRate">
+                  <option value="0">Yok</option>
+                  <option value="15">Var - %15</option>
+                  <option value="12">Var - %12</option>
+                  <option value="custom">Özel oran</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="field" id="customOffsiteWrap" style="display:none;">
+              <label for="customOffsiteRate">Özel Offsite Ads oranı (%)</label>
+              <input id="customOffsiteRate" type="number" inputmode="decimal" min="0" max="100" step="0.01" value="15" />
+            </div>
+
+            <div class="btn-row">
+              <button class="btn" id="saveDefaultsBtn" type="button">Varsayılanları kaydet</button>
+              <button class="btn secondary" id="copyProfitBtn" type="button">Sonucu kopyala</button>
+            </div>
+          </div>
+
+          <div class="card">
+            <h2>TL Karşılığı</h2>
+            <div class="field-grid">
+              <div class="field">
+                <label for="usdTry">Dolar kuru</label>
+                <input id="usdTry" type="number" inputmode="decimal" min="0" step="0.01" value="46.60" />
+              </div>
+              <div class="field">
+                <label for="tlExtraCost">TL ek gider</label>
+                <input id="tlExtraCost" type="number" inputmode="decimal" min="0" step="0.01" value="0" />
+                <div class="hint">Muhasebe, paketleme veya yerel masrafı TL olarak eklemek istersen.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <div class="card">
+            <h2>Sonuç</h2>
+            <div class="result-grid">
+              <div class="result-box">
+                <div class="result-title">Net kâr</div>
+                <div class="result-value good" id="netProfit">$0.00</div>
+              </div>
+              <div class="result-box">
+                <div class="result-title">Kâr marjı</div>
+                <div class="result-value" id="profitMargin">0.00%</div>
+              </div>
+              <div class="result-box">
+                <div class="result-title">TL net kâr</div>
+                <div class="small-value good" id="netProfitTry">₺0.00</div>
+              </div>
+              <div class="result-box">
+                <div class="result-title">ROI</div>
+                <div class="small-value" id="roiResult">0.00%</div>
+              </div>
+            </div>
+
+            <table>
+              <tbody>
+                <tr><td>Satış fiyatı</td><td id="rSale">$0.00</td></tr>
+                <tr><td>Normal Etsy kesintisi</td><td id="rBaseFee">-$0.00</td></tr>
+                <tr><td>Offsite Ads kesintisi</td><td id="rOffsiteFee">-$0.00</td></tr>
+                <tr><td>Ürün maliyeti</td><td id="rProduct">-$0.00</td></tr>
+                <tr><td>Kargo maliyeti</td><td id="rShipping">-$0.00</td></tr>
+                <tr><td>Paketleme + diğer + ads</td><td id="rOther">-$0.00</td></tr>
+                <tr><td>TL ek gider karşılığı</td><td id="rTlExtra">-$0.00</td></tr>
+                <tr><td>Toplam kesinti + gider</td><td id="rTotalCost">-$0.00</td></tr>
+                <tr class="strong-row"><td>Net kâr</td><td id="rProfit">$0.00</td></tr>
+              </tbody>
+            </table>
+
+            <div class="pill-row">
+              <span class="pill" id="pTotalRate">Toplam oran: %0</span>
+              <span class="pill" id="pBreakEven">Başabaş: $0</span>
+              <span class="pill" id="pAfterFees">Kesinti sonrası: $0</span>
+            </div>
+
+            <div class="notice orange">
+              Not: Bu uygulama hesaplama aracıdır. Etsy hesabındaki gerçek ödeme, iade, vergi, banka makası, Etsy Ads ve kampanya ayarlarına göre farklılaşabilir.
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="tab-panel" id="tab-target">
+      <div class="grid">
+        <div class="card">
+          <h2>Hedef Kâra Göre Satış Fiyatı Bul</h2>
+          <div class="field-grid">
+            <div class="field">
+              <label for="targetProfit">Hedef net kâr ($)</label>
+              <input id="targetProfit" type="number" inputmode="decimal" min="0" step="0.01" value="70" />
+            </div>
+            <div class="field">
+              <label for="targetBaseRate">Normal Etsy kesintisi (%)</label>
+              <input id="targetBaseRate" type="number" inputmode="decimal" min="0" max="100" step="0.01" value="18" />
+            </div>
+            <div class="field">
+              <label for="targetOffsite">Offsite Ads (%)</label>
+              <select id="targetOffsite">
+                <option value="0">Yok</option>
+                <option value="15">Var - %15</option>
+                <option value="12">Var - %12</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="targetCosts">Toplam sabit maliyet ($)</label>
+              <input id="targetCosts" type="number" inputmode="decimal" min="0" step="0.01" value="75" />
+              <div class="hint">Ürün + kargo + paketleme + diğer giderlerin toplamı.</div>
+            </div>
+          </div>
+          <div class="btn-row">
+            <button class="btn secondary" id="useCurrentCostsBtn" type="button">Mevcut maliyetleri aktar</button>
+          </div>
+          <div class="notice blue">
+            Formül: Gerekli satış fiyatı = (toplam maliyet + hedef kâr) / (1 - toplam kesinti oranı)
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>Gerekli Satış Fiyatı</h2>
+          <div class="result-grid">
+            <div class="result-box">
+              <div class="result-title">Minimum fiyat</div>
+              <div class="result-value" id="targetPrice">$0.00</div>
+            </div>
+            <div class="result-box">
+              <div class="result-title">Toplam kesinti</div>
+              <div class="result-value" id="targetTotalRate">%0.00</div>
+            </div>
+          </div>
+
+          <table>
+            <thead>
+              <tr><th>Yuvarlama</th><th>Önerilen fiyat</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Direkt minimum</td><td id="roundExact">$0.00</td></tr>
+              <tr><td>.99 psikolojik fiyat</td><td id="round99">$0.00</td></tr>
+              <tr><td>Tam dolar üstü</td><td id="roundWhole">$0.00</td></tr>
+              <tr><td>5 dolara yuvarla</td><td id="round5">$0.00</td></tr>
+              <tr><td>9 dolara biten</td><td id="round9">$0.00</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section class="tab-panel" id="tab-discount">
+      <div class="grid">
+        <div class="card">
+          <h2>İndirim Hesapla</h2>
+          <div class="field-grid">
+            <div class="field">
+              <label for="discountedPrice">İndirimli satış fiyatı ($)</label>
+              <input id="discountedPrice" type="number" inputmode="decimal" min="0" step="0.01" value="179" />
+            </div>
+            <div class="field">
+              <label for="selectedDiscount">Seçili indirim oranı (%)</label>
+              <input id="selectedDiscount" type="number" inputmode="decimal" min="0" max="95" step="1" value="25" />
+            </div>
+          </div>
+          <div class="result-grid">
+            <div class="result-box">
+              <div class="result-title">Gerekli liste fiyatı</div>
+              <div class="result-value" id="listPriceForDiscount">$0.00</div>
+            </div>
+            <div class="result-box">
+              <div class="result-title">Yuvarlanmış öneri</div>
+              <div class="result-value" id="roundedListPrice">$0.00</div>
+            </div>
+          </div>
+          <div class="notice blue">
+            Aşağıdaki tablo indirim oranını %5 artırarak %50’ye kadar liste fiyatını hesaplar.
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>%5 - %50 İndirim Tablosu</h2>
+          <table>
+            <thead>
+              <tr><th>İndirim</th><th>Liste fiyatı</th><th>Yuvarlak</th></tr>
+            </thead>
+            <tbody id="discountTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section class="tab-panel" id="tab-settings">
+      <div class="grid">
+        <div class="card">
+          <h2>Ayarlar ve Hazır Senaryolar</h2>
+          <div class="field">
+            <label for="scenarioPreset">Kesinti senaryosu</label>
+            <select id="scenarioPreset">
+              <option value="18">Normal: %18</option>
+              <option value="21">KDV/VAT dahil: %21</option>
+              <option value="33">Offsite Ads dahil: %33</option>
+              <option value="39">Offsite Ads + KDV/VAT: %39</option>
+            </select>
+          </div>
+          <div class="btn-row">
+            <button class="btn" id="applyScenarioBtn" type="button">Senaryoyu uygula</button>
+            <button class="btn secondary" id="resetBtn" type="button">Sıfırla</button>
+          </div>
+          <div class="notice orange">
+            %18, normal Etsy ana kesintisini pratik olarak temsil eder. Eğer Etsy seller-fee KDV/VAT kesiyorsa %21 daha gerçekçi olabilir. Offsite Ads gelirse toplam oran yaklaşık %33 veya KDV/VAT dahil %39 olabilir.
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>Uygulama Bilgisi</h2>
+          <table>
+            <tbody>
+              <tr><td>Çalışma şekli</td><td>Offline PWA</td></tr>
+              <tr><td>Veri saklama</td><td>Telefon tarayıcısı</td></tr>
+              <tr><td>İnternet gereksinimi</td><td>Yok</td></tr>
+              <tr><td>Sürüm</td><td>1.0.0</td></tr>
+            </tbody>
+          </table>
+          <div class="btn-row">
+            <button class="btn secondary" id="exportBtn" type="button">Hesap özeti indir</button>
+            <button class="btn secondary" id="clearStorageBtn" type="button">Kayıtlı ayarları sil</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="footer-note">
+      Etsy Fiyat & Kâr Hesaplayıcı — kendi kullanımın için hazırlanmış özel mini uygulama.
+    </div>
+  </main>
+
+  <script>
+    const $ = (id) => document.getElementById(id);
+
+    const stateKeys = [
+      "salePrice", "productCost", "shippingCost", "packagingCost", "otherCost", "etsyAdsCost",
+      "baseFeeRate", "offsiteRate", "customOffsiteRate", "usdTry", "tlExtraCost",
+      "targetProfit", "targetBaseRate", "targetOffsite", "targetCosts",
+      "discountedPrice", "selectedDiscount"
+    ];
+
+    function n(id) {
+      const el = $(id);
+      const value = parseFloat(el.value);
+      return isNaN(value) ? 0 : value;
+    }
+
+    function fmtUsd(value) {
+      const sign = value < 0 ? "-" : "";
+      return sign + "$" + Math.abs(value).toFixed(2);
+    }
+
+    function fmtTry(value) {
+      const sign = value < 0 ? "-" : "";
+      return sign + "₺" + Math.abs(value).toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    function fmtPct(value) {
+      return value.toFixed(2) + "%";
+    }
+
+    function getOffsiteRate() {
+      const selected = $("offsiteRate").value;
+      if (selected === "custom") return n("customOffsiteRate");
+      return parseFloat(selected) || 0;
+    }
+
+    function getProfitInputs() {
+      const sale = n("salePrice");
+      const product = n("productCost");
+      const shipping = n("shippingCost");
+      const packaging = n("packagingCost");
+      const other = n("otherCost");
+      const ads = n("etsyAdsCost");
+      const baseRate = n("baseFeeRate");
+      const offsiteRate = getOffsiteRate();
+      const usdTry = n("usdTry");
+      const tlExtra = n("tlExtraCost");
+      const tlExtraUsd = usdTry > 0 ? tlExtra / usdTry : 0;
+
+      const baseFee = sale * baseRate / 100;
+      const offsiteFee = sale * offsiteRate / 100;
+      const otherTotal = packaging + other + ads;
+      const totalFees = baseFee + offsiteFee;
+      const fixedCosts = product + shipping + otherTotal + tlExtraUsd;
+      const totalCost = fixedCosts + totalFees;
+      const netProfit = sale - totalCost;
+      const margin = sale > 0 ? netProfit / sale * 100 : 0;
+      const roi = fixedCosts > 0 ? netProfit / fixedCosts * 100 : 0;
+      const totalRate = baseRate + offsiteRate;
+      const afterFees = sale - totalFees;
+      const breakEven = totalRate < 100 ? fixedCosts / (1 - totalRate / 100) : Infinity;
+
+      return {
+        sale, product, shipping, packaging, other, ads, baseRate, offsiteRate, usdTry,
+        tlExtra, tlExtraUsd, baseFee, offsiteFee, otherTotal, totalFees, fixedCosts,
+        totalCost, netProfit, margin, roi, totalRate, afterFees, breakEven
+      };
+    }
+
+    function setProfitColor(id, value) {
+      const el = $(id);
+      el.classList.remove("good", "bad");
+      el.classList.add(value >= 0 ? "good" : "bad");
+    }
+
+    function calculateProfit() {
+      const x = getProfitInputs();
+
+      $("netProfit").textContent = fmtUsd(x.netProfit);
+      $("profitMargin").textContent = fmtPct(x.margin);
+      $("netProfitTry").textContent = fmtTry((x.netProfit * x.usdTry) - x.tlExtra);
+      $("roiResult").textContent = fmtPct(x.roi);
+
+      $("rSale").textContent = fmtUsd(x.sale);
+      $("rBaseFee").textContent = "-" + fmtUsd(x.baseFee);
+      $("rOffsiteFee").textContent = "-" + fmtUsd(x.offsiteFee);
+      $("rProduct").textContent = "-" + fmtUsd(x.product);
+      $("rShipping").textContent = "-" + fmtUsd(x.shipping);
+      $("rOther").textContent = "-" + fmtUsd(x.otherTotal);
+      $("rTlExtra").textContent = "-" + fmtUsd(x.tlExtraUsd);
+      $("rTotalCost").textContent = "-" + fmtUsd(x.totalCost);
+      $("rProfit").textContent = fmtUsd(x.netProfit);
+
+      $("pTotalRate").textContent = "Toplam oran: %" + x.totalRate.toFixed(2);
+      $("pBreakEven").textContent = "Başabaş: " + (isFinite(x.breakEven) ? fmtUsd(x.breakEven) : "Hesaplanamaz");
+      $("pAfterFees").textContent = "Kesinti sonrası: " + fmtUsd(x.afterFees);
+
+      setProfitColor("netProfit", x.netProfit);
+      setProfitColor("netProfitTry", (x.netProfit * x.usdTry) - x.tlExtra);
+      setProfitColor("rProfit", x.netProfit);
+
+      $("customOffsiteWrap").style.display = $("offsiteRate").value === "custom" ? "block" : "none";
+
+      saveStateQuiet();
+    }
+
+    function calculateTarget() {
+      const profit = n("targetProfit");
+      const costs = n("targetCosts");
+      const baseRate = n("targetBaseRate");
+      const offsiteRate = parseFloat($("targetOffsite").value) || 0;
+      const totalRate = baseRate + offsiteRate;
+      const denom = 1 - totalRate / 100;
+      const price = denom > 0 ? (costs + profit) / denom : Infinity;
+
+      $("targetPrice").textContent = isFinite(price) ? fmtUsd(price) : "Hesaplanamaz";
+      $("targetTotalRate").textContent = "%" + totalRate.toFixed(2);
+
+      $("roundExact").textContent = isFinite(price) ? fmtUsd(price) : "-";
+      $("round99").textContent = isFinite(price) ? fmtUsd(Math.ceil(price) - 0.01) : "-";
+      $("roundWhole").textContent = isFinite(price) ? fmtUsd(Math.ceil(price)) : "-";
+      $("round5").textContent = isFinite(price) ? fmtUsd(Math.ceil(price / 5) * 5) : "-";
+      $("round9").textContent = isFinite(price) ? fmtUsd(Math.ceil((price + 1) / 10) * 10 - 1) : "-";
+
+      saveStateQuiet();
+    }
+
+    function calculateDiscount() {
+      const discounted = n("discountedPrice");
+      const selected = n("selectedDiscount");
+      const denom = 1 - selected / 100;
+      const list = denom > 0 ? discounted / denom : Infinity;
+      $("listPriceForDiscount").textContent = isFinite(list) ? fmtUsd(list) : "Hesaplanamaz";
+      $("roundedListPrice").textContent = isFinite(list) ? fmtUsd(Math.ceil(list)) : "-";
+
+      const body = $("discountTableBody");
+      body.innerHTML = "";
+      for (let rate = 5; rate <= 50; rate += 5) {
+        const price = discounted / (1 - rate / 100);
+        const tr = document.createElement("tr");
+        tr.innerHTML = "<td>%" + rate + "</td><td>" + fmtUsd(price) + "</td><td>" + fmtUsd(Math.ceil(price)) + "</td>";
+        body.appendChild(tr);
+      }
+
+      saveStateQuiet();
+    }
+
+    function recalcAll() {
+      calculateProfit();
+      calculateTarget();
+      calculateDiscount();
+    }
+
+    function saveStateQuiet() {
+      const data = {};
+      stateKeys.forEach(key => {
+        const el = $(key);
+        if (el) data[key] = el.value;
+      });
+      data.theme = document.documentElement.dataset.theme || "light";
+      localStorage.setItem("etsyPwaState", JSON.stringify(data));
+    }
+
+    function loadState() {
+      try {
+        const raw = localStorage.getItem("etsyPwaState");
+        if (!raw) return;
+        const data = JSON.parse(raw);
+        stateKeys.forEach(key => {
+          if (data[key] !== undefined && $(key)) $(key).value = data[key];
+        });
+        if (data.theme) document.documentElement.dataset.theme = data.theme;
+      } catch (e) {}
+    }
+
+    function resetAll() {
+      localStorage.removeItem("etsyPwaState");
+      location.reload();
+    }
+
+    function copyProfit() {
+      const x = getProfitInputs();
+      const text =
+        "Etsy Kâr Hesabı\n" +
+        "Satış fiyatı: " + fmtUsd(x.sale) + "\n" +
+        "Normal Etsy kesintisi: " + fmtUsd(x.baseFee) + " (%" + x.baseRate + ")\n" +
+        "Offsite Ads: " + fmtUsd(x.offsiteFee) + " (%" + x.offsiteRate + ")\n" +
+        "Ürün maliyeti: " + fmtUsd(x.product) + "\n" +
+        "Kargo maliyeti: " + fmtUsd(x.shipping) + "\n" +
+        "Diğer giderler: " + fmtUsd(x.otherTotal + x.tlExtraUsd) + "\n" +
+        "Net kâr: " + fmtUsd(x.netProfit) + "\n" +
+        "Kâr marjı: " + fmtPct(x.margin);
+      navigator.clipboard?.writeText(text).then(() => alert("Hesap özeti kopyalandı."));
+    }
+
+    function exportSummary() {
+      const x = getProfitInputs();
+      const content =
+`Etsy Fiyat & Kâr Hesap Özeti
+
+Satış fiyatı: ${fmtUsd(x.sale)}
+Normal Etsy kesintisi: ${fmtUsd(x.baseFee)} (%${x.baseRate})
+Offsite Ads kesintisi: ${fmtUsd(x.offsiteFee)} (%${x.offsiteRate})
+Ürün maliyeti: ${fmtUsd(x.product)}
+Kargo maliyeti: ${fmtUsd(x.shipping)}
+Paketleme + diğer + Etsy Ads: ${fmtUsd(x.otherTotal)}
+TL ek gider karşılığı: ${fmtUsd(x.tlExtraUsd)}
+Toplam kesinti + gider: ${fmtUsd(x.totalCost)}
+
+Net kâr: ${fmtUsd(x.netProfit)}
+Kâr marjı: ${fmtPct(x.margin)}
+ROI: ${fmtPct(x.roi)}
+TL net kâr: ${fmtTry((x.netProfit * x.usdTry) - x.tlExtra)}
+`;
+      const blob = new Blob([content], { type: "text/plain;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "etsy_kar_hesap_ozeti.txt";
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function applyScenario() {
+      const val = parseFloat($("scenarioPreset").value);
+      if (val === 18) {
+        $("baseFeeRate").value = 18;
+        $("offsiteRate").value = 0;
+      } else if (val === 21) {
+        $("baseFeeRate").value = 21;
+        $("offsiteRate").value = 0;
+      } else if (val === 33) {
+        $("baseFeeRate").value = 18;
+        $("offsiteRate").value = 15;
+      } else if (val === 39) {
+        $("baseFeeRate").value = 21;
+        $("offsiteRate").value = 15;
+      }
+      $("targetBaseRate").value = $("baseFeeRate").value;
+      $("targetOffsite").value = $("offsiteRate").value === "15" ? "15" : "0";
+      recalcAll();
+    }
+
+    function setupTabs() {
+      document.querySelectorAll(".tab-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+          document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+          document.querySelectorAll(".tab-panel").forEach(p => p.classList.remove("active"));
+          btn.classList.add("active");
+          $("tab-" + btn.dataset.tab).classList.add("active");
+        });
+      });
+    }
+
+    function setupTheme() {
+      if (!document.documentElement.dataset.theme) {
+        document.documentElement.dataset.theme = "light";
+      }
+      const sync = () => {
+        $("themeBtn").textContent = document.documentElement.dataset.theme === "dark" ? "☀️" : "🌙";
+      };
+      sync();
+      $("themeBtn").addEventListener("click", () => {
+        document.documentElement.dataset.theme = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
+        sync();
+        saveStateQuiet();
+      });
+    }
+
+    let deferredPrompt = null;
+    window.addEventListener("beforeinstallprompt", (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      if (localStorage.getItem("installDismissed") !== "1") {
+        $("installCard").classList.add("show");
+      }
+    });
+
+    $("installBtn").addEventListener("click", async () => {
+      if (!deferredPrompt) return;
+      deferredPrompt.prompt();
+      await deferredPrompt.userChoice;
+      deferredPrompt = null;
+      $("installCard").classList.remove("show");
+    });
+
+    $("dismissInstallBtn").addEventListener("click", () => {
+      localStorage.setItem("installDismissed", "1");
+      $("installCard").classList.remove("show");
+    });
+
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker.register("./service-worker.js").catch(() => {});
+      });
+    }
+
+    loadState();
+    setupTabs();
+    setupTheme();
+
+    stateKeys.forEach(key => {
+      const el = $(key);
+      if (el) {
+        el.addEventListener("input", recalcAll);
+        el.addEventListener("change", recalcAll);
+      }
+    });
+
+    $("saveDefaultsBtn").addEventListener("click", () => {
+      saveStateQuiet();
+      alert("Varsayılanlar kaydedildi.");
+    });
+    $("copyProfitBtn").addEventListener("click", copyProfit);
+    $("useCurrentCostsBtn").addEventListener("click", () => {
+      const x = getProfitInputs();
+      $("targetCosts").value = (x.product + x.shipping + x.otherTotal + x.tlExtraUsd).toFixed(2);
+      $("targetBaseRate").value = x.baseRate;
+      $("targetOffsite").value = x.offsiteRate === 12 ? "12" : x.offsiteRate === 15 ? "15" : "0";
+      calculateTarget();
+    });
+    $("applyScenarioBtn").addEventListener("click", applyScenario);
+    $("resetBtn").addEventListener("click", resetAll);
+    $("exportBtn").addEventListener("click", exportSummary);
+    $("clearStorageBtn").addEventListener("click", () => {
+      localStorage.clear();
+      alert("Kayıtlı ayarlar silindi.");
+    });
+
+    recalcAll();
+  </script>
+</body>
+</html>
