@@ -406,6 +406,51 @@
 
     .wide { grid-column: 1 / -1; }
 
+
+
+    .rate-panel {
+      display: grid;
+      gap: 10px;
+      margin-top: 8px;
+    }
+
+    .rate-status {
+      display: grid;
+      gap: 4px;
+      padding: 12px;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .rate-status strong {
+      color: var(--text);
+      font-size: 13px;
+    }
+
+    .money-table td:nth-child(2),
+    .money-table th:nth-child(2) {
+      text-align: right;
+      font-weight: 800;
+    }
+
+    .money-table td:nth-child(3),
+    .money-table th:nth-child(3) {
+      text-align: right;
+      color: var(--muted);
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .tl-mini {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+      margin-top: 4px;
+    }
+
     @media (max-width: 820px) {
       .grid {
         grid-template-columns: 1fr;
@@ -434,7 +479,7 @@
         <div class="logo">E</div>
         <div>
           <h1>Etsy Fiyat & Kâr Hesaplayıcı</h1>
-          <p>Offline çalışan özel mini uygulama</p>
+          <p>Otomatik kur güncellemeli offline mini uygulama</p>
         </div>
       </div>
       <button class="icon-btn" id="themeBtn" type="button">🌙</button>
@@ -518,16 +563,35 @@
           </div>
 
           <div class="card">
-            <h2>TL Karşılığı</h2>
+            <h2>Kur ve TL Karşılığı</h2>
             <div class="field-grid">
               <div class="field">
-                <label for="usdTry">Dolar kuru</label>
-                <input id="usdTry" type="number" inputmode="decimal" min="0" step="0.01" value="46.60" />
+                <label for="usdTry">Dolar kuru (USD/TRY)</label>
+                <input id="usdTry" type="number" inputmode="decimal" min="0" step="0.0001" value="46.60" />
+                <div class="hint">İnternet varsa otomatik güncellenir; internet yoksa son kaydedilen kur kullanılır.</div>
               </div>
               <div class="field">
                 <label for="tlExtraCost">TL ek gider</label>
                 <input id="tlExtraCost" type="number" inputmode="decimal" min="0" step="0.01" value="0" />
                 <div class="hint">Muhasebe, paketleme veya yerel masrafı TL olarak eklemek istersen.</div>
+              </div>
+            </div>
+
+            <div class="check-row">
+              <label for="autoUpdateRate">Uygulama açılırken kuru otomatik güncelle</label>
+              <input id="autoUpdateRate" type="checkbox" checked />
+            </div>
+
+            <div class="btn-row">
+              <button class="btn" id="updateRateBtn" type="button">Kuru şimdi güncelle</button>
+              <button class="btn secondary" id="useSavedRateBtn" type="button">Son kayıtlı kuru kullan</button>
+            </div>
+
+            <div class="rate-panel">
+              <div class="rate-status">
+                <strong id="rateStatus">Kur bilgisi hazır.</strong>
+                <span id="rateLastUpdate">Son güncelleme: henüz yok</span>
+                <span id="rateSource">Kaynak: manuel / varsayılan</span>
               </div>
             </div>
           </div>
@@ -555,17 +619,20 @@
               </div>
             </div>
 
-            <table>
+            <table class="money-table">
+              <thead>
+                <tr><th>Kalem</th><th>USD</th><th>TL</th></tr>
+              </thead>
               <tbody>
-                <tr><td>Satış fiyatı</td><td id="rSale">$0.00</td></tr>
-                <tr><td>Normal Etsy kesintisi</td><td id="rBaseFee">-$0.00</td></tr>
-                <tr><td>Offsite Ads kesintisi</td><td id="rOffsiteFee">-$0.00</td></tr>
-                <tr><td>Ürün maliyeti</td><td id="rProduct">-$0.00</td></tr>
-                <tr><td>Kargo maliyeti</td><td id="rShipping">-$0.00</td></tr>
-                <tr><td>Paketleme + diğer + ads</td><td id="rOther">-$0.00</td></tr>
-                <tr><td>TL ek gider karşılığı</td><td id="rTlExtra">-$0.00</td></tr>
-                <tr><td>Toplam kesinti + gider</td><td id="rTotalCost">-$0.00</td></tr>
-                <tr class="strong-row"><td>Net kâr</td><td id="rProfit">$0.00</td></tr>
+                <tr><td>Satış fiyatı</td><td id="rSale">$0.00</td><td id="rSaleTry">₺0.00</td></tr>
+                <tr><td>Normal Etsy kesintisi</td><td id="rBaseFee">-$0.00</td><td id="rBaseFeeTry">-₺0.00</td></tr>
+                <tr><td>Offsite Ads kesintisi</td><td id="rOffsiteFee">-$0.00</td><td id="rOffsiteFeeTry">-₺0.00</td></tr>
+                <tr><td>Ürün maliyeti</td><td id="rProduct">-$0.00</td><td id="rProductTry">-₺0.00</td></tr>
+                <tr><td>Kargo maliyeti</td><td id="rShipping">-$0.00</td><td id="rShippingTry">-₺0.00</td></tr>
+                <tr><td>Paketleme + diğer + ads</td><td id="rOther">-$0.00</td><td id="rOtherTry">-₺0.00</td></tr>
+                <tr><td>TL ek gider karşılığı</td><td id="rTlExtra">-$0.00</td><td id="rTlExtraTry">-₺0.00</td></tr>
+                <tr><td>Toplam kesinti + gider</td><td id="rTotalCost">-$0.00</td><td id="rTotalCostTry">-₺0.00</td></tr>
+                <tr class="strong-row"><td>Net kâr</td><td id="rProfit">$0.00</td><td id="rProfitTry">₺0.00</td></tr>
               </tbody>
             </table>
 
@@ -624,6 +691,7 @@
             <div class="result-box">
               <div class="result-title">Minimum fiyat</div>
               <div class="result-value" id="targetPrice">$0.00</div>
+              <div class="tl-mini" id="targetPriceTry">₺0.00</div>
             </div>
             <div class="result-box">
               <div class="result-title">Toplam kesinti</div>
@@ -633,14 +701,14 @@
 
           <table>
             <thead>
-              <tr><th>Yuvarlama</th><th>Önerilen fiyat</th></tr>
+              <tr><th>Yuvarlama</th><th>USD</th><th>TL</th></tr>
             </thead>
             <tbody>
-              <tr><td>Direkt minimum</td><td id="roundExact">$0.00</td></tr>
-              <tr><td>.99 psikolojik fiyat</td><td id="round99">$0.00</td></tr>
-              <tr><td>Tam dolar üstü</td><td id="roundWhole">$0.00</td></tr>
-              <tr><td>5 dolara yuvarla</td><td id="round5">$0.00</td></tr>
-              <tr><td>9 dolara biten</td><td id="round9">$0.00</td></tr>
+              <tr><td>Direkt minimum</td><td id="roundExact">$0.00</td><td id="roundExactTry">₺0.00</td></tr>
+              <tr><td>.99 psikolojik fiyat</td><td id="round99">$0.00</td><td id="round99Try">₺0.00</td></tr>
+              <tr><td>Tam dolar üstü</td><td id="roundWhole">$0.00</td><td id="roundWholeTry">₺0.00</td></tr>
+              <tr><td>5 dolara yuvarla</td><td id="round5">$0.00</td><td id="round5Try">₺0.00</td></tr>
+              <tr><td>9 dolara biten</td><td id="round9">$0.00</td><td id="round9Try">₺0.00</td></tr>
             </tbody>
           </table>
         </div>
@@ -665,10 +733,12 @@
             <div class="result-box">
               <div class="result-title">Gerekli liste fiyatı</div>
               <div class="result-value" id="listPriceForDiscount">$0.00</div>
+              <div class="tl-mini" id="listPriceForDiscountTry">₺0.00</div>
             </div>
             <div class="result-box">
               <div class="result-title">Yuvarlanmış öneri</div>
               <div class="result-value" id="roundedListPrice">$0.00</div>
+              <div class="tl-mini" id="roundedListPriceTry">₺0.00</div>
             </div>
           </div>
           <div class="notice blue">
@@ -680,7 +750,7 @@
           <h2>%5 - %50 İndirim Tablosu</h2>
           <table>
             <thead>
-              <tr><th>İndirim</th><th>Liste fiyatı</th><th>Yuvarlak</th></tr>
+              <tr><th>İndirim</th><th>Liste fiyatı</th><th>Yuvarlak</th><th>TL</th></tr>
             </thead>
             <tbody id="discountTableBody"></tbody>
           </table>
@@ -738,7 +808,7 @@
 
     const stateKeys = [
       "salePrice", "productCost", "shippingCost", "packagingCost", "otherCost", "etsyAdsCost",
-      "baseFeeRate", "offsiteRate", "customOffsiteRate", "usdTry", "tlExtraCost",
+      "baseFeeRate", "offsiteRate", "customOffsiteRate", "usdTry", "tlExtraCost", "autoUpdateRate",
       "targetProfit", "targetBaseRate", "targetOffsite", "targetCosts",
       "discountedPrice", "selectedDiscount"
     ];
@@ -761,6 +831,105 @@
 
     function fmtPct(value) {
       return value.toFixed(2) + "%";
+    }
+
+
+    function setMoneyPair(usdId, tryId, valueUsd, negative = false) {
+      const signedUsd = negative ? -Math.abs(valueUsd) : valueUsd;
+      const signedTry = signedUsd * n("usdTry");
+      $(usdId).textContent = fmtUsd(signedUsd);
+      $(tryId).textContent = fmtTry(signedTry);
+    }
+
+    function rateMetaText(meta) {
+      if (!meta) return "Son güncelleme: henüz yok";
+      const dateText = meta.updatedAt ? new Date(meta.updatedAt).toLocaleString("tr-TR") : "bilinmiyor";
+      return "Son güncelleme: " + dateText + (meta.providerDate ? " | Veri tarihi: " + meta.providerDate : "");
+    }
+
+    function getSavedRateMeta() {
+      try { return JSON.parse(localStorage.getItem("usdTryRateMeta") || "null"); }
+      catch (e) { return null; }
+    }
+
+    function updateRateInfo(status, sourceText) {
+      if ($("rateStatus")) $("rateStatus").textContent = status;
+      const meta = getSavedRateMeta();
+      if ($("rateLastUpdate")) $("rateLastUpdate").textContent = rateMetaText(meta);
+      if ($("rateSource")) $("rateSource").textContent = sourceText || (meta?.source ? "Kaynak: " + meta.source : "Kaynak: manuel / varsayılan");
+    }
+
+    async function fetchJsonWithTimeout(url, timeoutMs = 7000) {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), timeoutMs);
+      try {
+        const response = await fetch(url, { cache: "no-store", signal: controller.signal });
+        if (!response.ok) throw new Error("HTTP " + response.status);
+        return await response.json();
+      } finally {
+        clearTimeout(timer);
+      }
+    }
+
+    async function updateExchangeRate(manual = false) {
+      if (!navigator.onLine) {
+        updateRateInfo("İnternet yok. Son kayıtlı kur kullanılıyor.");
+        recalcAll();
+        return;
+      }
+
+      updateRateInfo("Kur güncelleniyor...");
+      const providers = [
+        {
+          name: "ExchangeRate-API open endpoint",
+          url: "https://open.er-api.com/v6/latest/USD",
+          parse: (data) => ({ rate: data?.rates?.TRY, providerDate: data?.time_last_update_utc || data?.time_last_update_unix || "" })
+        },
+        {
+          name: "Frankfurter",
+          url: "https://api.frankfurter.dev/v1/latest?base=USD&symbols=TRY",
+          parse: (data) => ({ rate: data?.rates?.TRY, providerDate: data?.date || "" })
+        }
+      ];
+
+      let lastError = null;
+      for (const provider of providers) {
+        try {
+          const data = await fetchJsonWithTimeout(provider.url);
+          const parsed = provider.parse(data);
+          const rate = Number(parsed.rate);
+          if (!isFinite(rate) || rate <= 0) throw new Error("TRY kuru okunamadı");
+
+          $("usdTry").value = rate.toFixed(4);
+          const meta = {
+            rate,
+            source: provider.name,
+            providerDate: parsed.providerDate || "",
+            updatedAt: new Date().toISOString()
+          };
+          localStorage.setItem("usdTryRateMeta", JSON.stringify(meta));
+          saveStateQuiet();
+          updateRateInfo("Kur güncellendi.", "Kaynak: " + provider.name);
+          recalcAll();
+          return;
+        } catch (err) {
+          lastError = err;
+        }
+      }
+
+      updateRateInfo("Kur güncellenemedi. Son kayıtlı/manuel kur kullanılıyor.");
+      recalcAll();
+    }
+
+    function useSavedExchangeRate() {
+      const meta = getSavedRateMeta();
+      if (meta?.rate && isFinite(Number(meta.rate))) {
+        $("usdTry").value = Number(meta.rate).toFixed(4);
+        updateRateInfo("Son kayıtlı kur kullanılıyor.");
+        recalcAll();
+      } else {
+        updateRateInfo("Kayıtlı kur bulunamadı. Manuel kur kullanılıyor.");
+      }
     }
 
     function getOffsiteRate() {
@@ -816,15 +985,15 @@
       $("netProfitTry").textContent = fmtTry((x.netProfit * x.usdTry) - x.tlExtra);
       $("roiResult").textContent = fmtPct(x.roi);
 
-      $("rSale").textContent = fmtUsd(x.sale);
-      $("rBaseFee").textContent = "-" + fmtUsd(x.baseFee);
-      $("rOffsiteFee").textContent = "-" + fmtUsd(x.offsiteFee);
-      $("rProduct").textContent = "-" + fmtUsd(x.product);
-      $("rShipping").textContent = "-" + fmtUsd(x.shipping);
-      $("rOther").textContent = "-" + fmtUsd(x.otherTotal);
-      $("rTlExtra").textContent = "-" + fmtUsd(x.tlExtraUsd);
-      $("rTotalCost").textContent = "-" + fmtUsd(x.totalCost);
-      $("rProfit").textContent = fmtUsd(x.netProfit);
+      setMoneyPair("rSale", "rSaleTry", x.sale);
+      setMoneyPair("rBaseFee", "rBaseFeeTry", x.baseFee, true);
+      setMoneyPair("rOffsiteFee", "rOffsiteFeeTry", x.offsiteFee, true);
+      setMoneyPair("rProduct", "rProductTry", x.product, true);
+      setMoneyPair("rShipping", "rShippingTry", x.shipping, true);
+      setMoneyPair("rOther", "rOtherTry", x.otherTotal, true);
+      setMoneyPair("rTlExtra", "rTlExtraTry", x.tlExtraUsd, true);
+      setMoneyPair("rTotalCost", "rTotalCostTry", x.totalCost, true);
+      setMoneyPair("rProfit", "rProfitTry", x.netProfit);
 
       $("pTotalRate").textContent = "Toplam oran: %" + x.totalRate.toFixed(2);
       $("pBreakEven").textContent = "Başabaş: " + (isFinite(x.breakEven) ? fmtUsd(x.breakEven) : "Hesaplanamaz");
@@ -835,6 +1004,7 @@
       setProfitColor("rProfit", x.netProfit);
 
       $("customOffsiteWrap").style.display = $("offsiteRate").value === "custom" ? "block" : "none";
+      updateRateInfo($("rateStatus")?.textContent || "Kur bilgisi hazır.");
 
       saveStateQuiet();
     }
@@ -848,14 +1018,22 @@
       const denom = 1 - totalRate / 100;
       const price = denom > 0 ? (costs + profit) / denom : Infinity;
 
+      const usdTry = n("usdTry");
       $("targetPrice").textContent = isFinite(price) ? fmtUsd(price) : "Hesaplanamaz";
+      if ($("targetPriceTry")) $("targetPriceTry").textContent = isFinite(price) ? fmtTry(price * usdTry) : "-";
       $("targetTotalRate").textContent = "%" + totalRate.toFixed(2);
 
-      $("roundExact").textContent = isFinite(price) ? fmtUsd(price) : "-";
-      $("round99").textContent = isFinite(price) ? fmtUsd(Math.ceil(price) - 0.01) : "-";
-      $("roundWhole").textContent = isFinite(price) ? fmtUsd(Math.ceil(price)) : "-";
-      $("round5").textContent = isFinite(price) ? fmtUsd(Math.ceil(price / 5) * 5) : "-";
-      $("round9").textContent = isFinite(price) ? fmtUsd(Math.ceil((price + 1) / 10) * 10 - 1) : "-";
+      const roundValues = {
+        roundExact: price,
+        round99: Math.ceil(price) - 0.01,
+        roundWhole: Math.ceil(price),
+        round5: Math.ceil(price / 5) * 5,
+        round9: Math.ceil((price + 1) / 10) * 10 - 1
+      };
+      Object.entries(roundValues).forEach(([id, value]) => {
+        $(id).textContent = isFinite(value) ? fmtUsd(value) : "-";
+        if ($(id + "Try")) $(id + "Try").textContent = isFinite(value) ? fmtTry(value * usdTry) : "-";
+      });
 
       saveStateQuiet();
     }
@@ -865,15 +1043,19 @@
       const selected = n("selectedDiscount");
       const denom = 1 - selected / 100;
       const list = denom > 0 ? discounted / denom : Infinity;
+      const usdTry = n("usdTry");
       $("listPriceForDiscount").textContent = isFinite(list) ? fmtUsd(list) : "Hesaplanamaz";
+      if ($("listPriceForDiscountTry")) $("listPriceForDiscountTry").textContent = isFinite(list) ? fmtTry(list * usdTry) : "-";
       $("roundedListPrice").textContent = isFinite(list) ? fmtUsd(Math.ceil(list)) : "-";
+      if ($("roundedListPriceTry")) $("roundedListPriceTry").textContent = isFinite(list) ? fmtTry(Math.ceil(list) * usdTry) : "-";
 
       const body = $("discountTableBody");
       body.innerHTML = "";
       for (let rate = 5; rate <= 50; rate += 5) {
         const price = discounted / (1 - rate / 100);
+        const rounded = Math.ceil(price);
         const tr = document.createElement("tr");
-        tr.innerHTML = "<td>%" + rate + "</td><td>" + fmtUsd(price) + "</td><td>" + fmtUsd(Math.ceil(price)) + "</td>";
+        tr.innerHTML = "<td>%" + rate + "</td><td>" + fmtUsd(price) + "</td><td>" + fmtUsd(rounded) + "</td><td>" + fmtTry(rounded * usdTry) + "</td>";
         body.appendChild(tr);
       }
 
@@ -890,7 +1072,8 @@
       const data = {};
       stateKeys.forEach(key => {
         const el = $(key);
-        if (el) data[key] = el.value;
+        if (!el) return;
+        data[key] = el.type === "checkbox" ? el.checked : el.value;
       });
       data.theme = document.documentElement.dataset.theme || "light";
       localStorage.setItem("etsyPwaState", JSON.stringify(data));
@@ -902,7 +1085,10 @@
         if (!raw) return;
         const data = JSON.parse(raw);
         stateKeys.forEach(key => {
-          if (data[key] !== undefined && $(key)) $(key).value = data[key];
+          const el = $(key);
+          if (data[key] === undefined || !el) return;
+          if (el.type === "checkbox") el.checked = Boolean(data[key]);
+          else el.value = data[key];
         });
         if (data.theme) document.documentElement.dataset.theme = data.theme;
       } catch (e) {}
@@ -1047,6 +1233,12 @@ TL net kâr: ${fmtTry((x.netProfit * x.usdTry) - x.tlExtra)}
       alert("Varsayılanlar kaydedildi.");
     });
     $("copyProfitBtn").addEventListener("click", copyProfit);
+    $("updateRateBtn").addEventListener("click", () => updateExchangeRate(true));
+    $("useSavedRateBtn").addEventListener("click", useSavedExchangeRate);
+    window.addEventListener("online", () => {
+      if ($("autoUpdateRate")?.checked) updateExchangeRate(false);
+    });
+    window.addEventListener("offline", () => updateRateInfo("İnternet yok. Son kayıtlı kur kullanılıyor."));
     $("useCurrentCostsBtn").addEventListener("click", () => {
       const x = getProfitInputs();
       $("targetCosts").value = (x.product + x.shipping + x.otherTotal + x.tlExtraUsd).toFixed(2);
@@ -1063,6 +1255,10 @@ TL net kâr: ${fmtTry((x.netProfit * x.usdTry) - x.tlExtra)}
     });
 
     recalcAll();
+    updateRateInfo("Kur bilgisi hazır.");
+    if ($("autoUpdateRate")?.checked) {
+      updateExchangeRate(false);
+    }
   </script>
 </body>
 </html>

@@ -37,3 +37,11 @@ DOSYAYI TELEFONDA SADECE HTML GİBİ KULLANMAK
 - Koyu/açık tema
 - Ayarları telefonda saklama
 - Hesap özeti kopyalama ve TXT olarak indirme
+
+
+SÜRÜM 2 NOTLARI
+- İnternet varken USD/TRY kuru otomatik güncellenir.
+- İnternet yoksa son kaydedilen kur kullanılır.
+- ExchangeRate-API açık endpoint'i ilk kaynak, Frankfurter yedek kaynak olarak kullanılır.
+- Satış, maliyet, kesinti ve kâr satırlarının yanında TL karşılığı gösterilir.
+- Güncelleme sonrası service-worker cache sürümü v2 yapılmıştır.

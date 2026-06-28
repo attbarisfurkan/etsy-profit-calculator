@@ -1,4 +1,4 @@
-const CACHE_NAME = "etsy-kar-pwa-v1";
+const CACHE_NAME = "etsy-kar-pwa-v2";
 const APP_FILES = [
   "./",
   "./index.html",
